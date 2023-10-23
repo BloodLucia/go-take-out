@@ -7,14 +7,13 @@ import (
 )
 
 func main() {
-	a, f, err := wire.NewApp()
+	app, cleanup, err := wire.NewApp()
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	a.Listen(":3000")
+	app.Listen(":3000")
 
-	defer f()
-
+	defer cleanup()
 }
