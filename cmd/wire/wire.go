@@ -8,6 +8,7 @@ import (
 	"github.com/google/wire"
 	adminv1 "github.com/kalougata/go-take-out/api/admin"
 	"github.com/kalougata/go-take-out/internal/data"
+	"github.com/kalougata/go-take-out/internal/middleware"
 	"github.com/kalougata/go-take-out/internal/server"
 	adminsrv "github.com/kalougata/go-take-out/internal/service/admin"
 	"github.com/kalougata/go-take-out/pkg/config"
@@ -18,6 +19,7 @@ func NewApp() (*fiber.App, func(), error) {
 	panic(wire.Build(
 		config.NewConfig,
 		jwt.NewJWT,
+		middleware.NewJWTMiddleware,
 		data.NewData,
 		adminsrv.AdminServiceProvider,
 		adminv1.AdminAPIRouterProvider,

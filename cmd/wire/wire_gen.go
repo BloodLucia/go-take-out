@@ -11,6 +11,7 @@ import (
 	"github.com/kalougata/go-take-out/api/admin"
 	"github.com/kalougata/go-take-out/internal/controller/admin"
 	"github.com/kalougata/go-take-out/internal/data"
+	"github.com/kalougata/go-take-out/internal/middleware"
 	"github.com/kalougata/go-take-out/internal/server"
 	"github.com/kalougata/go-take-out/internal/service/admin"
 	"github.com/kalougata/go-take-out/pkg/config"
@@ -30,7 +31,8 @@ func NewApp() (*fiber.App, func(), error) {
 	employeeService := adminsrv.NewEmployeeService(service, jwtJWT)
 	authController := adminctrl.NewAuthController(employeeService)
 	adminAPIRouter := adminv1.NewAdminAPIRouter(authController)
-	app := server.NewHTTPServer(adminAPIRouter)
+	jwtMiddleware := middleware.NewJWTMiddleware(jwtJWT)
+	app := server.NewHTTPServer(adminAPIRouter, jwtMiddleware)
 	return app, func() {
 		cleanup()
 	}, nil
