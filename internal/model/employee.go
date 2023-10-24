@@ -12,7 +12,7 @@ type Employee struct {
 	Email         string    `gorm:"type:varchar(100);not null;unique_index;column:email;comment:用户邮箱"`
 	Passwd        string    `gorm:"type:varchar(60);not null;column:passwd;comment:加密后的密码"`
 	Status        int       `gorm:"type tinyint(1);default:0;column:status;comment:用户状态(0-正常 1-锁定)"`
-	LastLoginTime time.Time `gorm:"type:datetime;null;column:last_login_time;comment:用户最后登录时间"`
+	LastLoginTime time.Time `gorm:"type:datetime;null;default:null;column:last_login_time;comment:用户最后登录时间"`
 }
 
 type EmployeeRegisterRequest struct {

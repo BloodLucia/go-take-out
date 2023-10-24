@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gookit/validate"
 	"github.com/kalougata/go-take-out/internal/data"
+	"github.com/kalougata/go-take-out/internal/model"
 )
 
 type authController struct {
@@ -43,7 +44,34 @@ func (ac *authController) Login(c *fiber.Ctx) error {
 }
 
 func (ac *authController) Register(c *fiber.Ctx) error {
-	return c.SendString("register")
+	var data = new(model.EmployeeRegisterRequest)
+	if err := c.BodyParser(data); err != nil {
+		c.SendStatus(http.StatusUnprocessableEntity)
+		return c.JSON(fiber.Map{
+			"success": false,
+			"errs":    err.Error(),
+		})
+	}
+
+	employee := &model.Employee{
+		LoginName: data.LoginName,
+		Email:     data.Email,
+		Passwd:    data.Passwd,
+	}
+
+	if err := ac.data.DB.WithContext(c.Context()).Create(employee).Error; err != nil {
+		c.SendStatus(http.StatusInternalServerError)
+		return c.JSON(fiber.Map{
+			"success": false,
+			"errs":    err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"errs":    nil,
+		"data":    data,
+	})
 }
 
 func NewAuthController(data *data.Data) AuthController {
