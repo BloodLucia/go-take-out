@@ -7,6 +7,7 @@ import (
 	"github.com/gookit/validate"
 	"github.com/kalougata/go-take-out/internal/data"
 	"github.com/kalougata/go-take-out/internal/model"
+	"github.com/kalougata/go-take-out/pkg/utils"
 )
 
 type authController struct {
@@ -56,7 +57,7 @@ func (ac *authController) Register(c *fiber.Ctx) error {
 	employee := &model.Employee{
 		LoginName: data.LoginName,
 		Email:     data.Email,
-		Passwd:    data.Passwd,
+		Passwd:    utils.BcryptHash(data.Passwd),
 	}
 
 	if err := ac.data.DB.WithContext(c.Context()).Create(employee).Error; err != nil {
