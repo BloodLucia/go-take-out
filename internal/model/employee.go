@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/spf13/cast"
 	"gorm.io/gorm"
 )
 
@@ -24,10 +25,18 @@ type EmployeeRegisterRequest struct {
 }
 
 type EmployeeLoginRequest struct {
-	LoginName string `json:"login_name" validate:"requried" message:"required:login_name 必填"`
+	LoginName string `json:"login_name" validate:"required" message:"required:login_name 必填"`
 	Passwd    string `json:"passwd" validate:"required" message:"required:passwd 必填"`
 }
 
-func (Employee) TableName() string {
+type EmployeeLoginResponse struct {
+	Token string `json:"token"`
+}
+
+func (e *Employee) TableName() string {
 	return "tb_employees"
+}
+
+func (e *Employee) StringID() string {
+	return cast.ToString(e.ID)
 }

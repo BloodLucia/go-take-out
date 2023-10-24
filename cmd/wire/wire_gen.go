@@ -14,6 +14,7 @@ import (
 	"github.com/kalougata/go-take-out/internal/server"
 	"github.com/kalougata/go-take-out/internal/service/admin"
 	"github.com/kalougata/go-take-out/pkg/config"
+	"github.com/kalougata/go-take-out/pkg/jwt"
 )
 
 // Injectors from wire.go:
@@ -25,7 +26,8 @@ func NewApp() (*fiber.App, func(), error) {
 		return nil, nil, err
 	}
 	service := adminsrv.NewService(dataData)
-	employeeService := adminsrv.NewEmployeeService(service)
+	jwtJWT := jwt.NewJWT()
+	employeeService := adminsrv.NewEmployeeService(service, jwtJWT)
 	authController := adminctrl.NewAuthController(employeeService)
 	adminAPIRouter := adminv1.NewAdminAPIRouter(authController)
 	app := server.NewHTTPServer(adminAPIRouter)

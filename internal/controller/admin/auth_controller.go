@@ -1,8 +1,6 @@
 package adminctrl
 
 import (
-	"net/http"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gookit/validate"
 	"github.com/kalougata/go-take-out/internal/model"
@@ -20,29 +18,23 @@ type AuthController interface {
 	Register(c *fiber.Ctx) error
 }
 
-type AdminLoginRequest struct {
-	LoginName string `json:"login_name" validate:"required" message:"required:login_name 必填"`
-	Passwd    string `json:"passwd" validate:"required" message:"required:passwd 必填"`
-}
-
 func (ac *authController) Login(c *fiber.Ctx) error {
-	var req = new(AdminLoginRequest)
-	if err := c.BodyParser(req); err != nil {
-		c.SendStatus(http.StatusUnprocessableEntity)
-		return c.JSON(fiber.Map{
-			"errs": err.Error(),
-		})
+	var data = new(model.EmployeeLoginRequest)
+	if err := c.BodyParser(data); err != nil {
+		return response.Build(c, errors.ErrInvalidRequestParams().WithMsg(err.Error()), nil)
 	}
 
-	v := validate.Struct(req)
+	v := validate.Struct(data)
+
 	if !v.Validate() {
-		c.SendStatus(http.StatusUnprocessableEntity)
-		return c.JSON(fiber.Map{
-			"errs": v.Errors,
-		})
+		return response.Build(c, errors.ErrInvalidRequestParams(), v.Errors)
 	}
 
-	return c.SendString("Login")
+	if resp, err := ac.service.Login(c.Context(), data); err == nil {
+		return response.Build(c, nil, resp)
+	} else {
+		return response.Build(c, err, nil)
+	}
 }
 
 func (ac *authController) Register(c *fiber.Ctx) error {
