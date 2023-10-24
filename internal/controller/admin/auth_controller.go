@@ -31,7 +31,7 @@ func (ac *authController) Login(c *fiber.Ctx) error {
 	return c.SendString("Login")
 }
 
-func (*authController) Register(c *fiber.Ctx) error {
+func (ac *authController) Register(c *fiber.Ctx) error {
 	return c.SendString("register")
 }
 
