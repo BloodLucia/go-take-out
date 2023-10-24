@@ -7,7 +7,7 @@ type Employee struct {
 	LoginName string `gorm:"type:varchar(50) column:login_name comment:用户登录账号"`
 	Email     string `gorm:"type:varchar(100) column:email comment:用户邮箱"`
 	Passwd    string `gorm:"type:varchar(60) column:passwd comment:加密后的密码"`
-	Status    int    `gorm:"type tinyint(1) default 0 comment:用户状态(0-正常 1-锁定)"`
+	Status    int    `gorm:"type tinyint(1) default:0 comment:用户状态(0-正常 1-锁定)"`
 }
 
 type EmployeeRegisterRequest struct {
