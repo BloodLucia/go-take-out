@@ -3,9 +3,11 @@ package adminsrv
 import (
 	"context"
 	"errors"
+
 	"time"
 
 	"github.com/kalougata/go-take-out/internal/model"
+	myErr "github.com/kalougata/go-take-out/pkg/errors"
 	"github.com/kalougata/go-take-out/pkg/utils"
 	"gorm.io/gorm"
 )
@@ -26,14 +28,18 @@ func (es *employeeService) Register(ctx context.Context, req *model.EmployeeRegi
 		Model(employee).
 		Where("login_name = ?", req.LoginName).
 		First(employee).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
-		return errors.New("登录名已被注册, 请重新输入")
+		return myErr.ErrBadRequest().WithMsg("登录名已被注册, 请重新输入")
 	}
 	employee.LoginName = req.LoginName
 	employee.Passwd = utils.BcryptHash(req.Passwd)
 	employee.RegTime = time.Now()
 	employee.RegIp = req.RegIp
 
-	return es.DB.WithContext(ctx).Create(employee).Error
+	if err := es.DB.WithContext(ctx).Create(employee).Error; err != nil {
+		return myErr.ErrInternalServer().WithMsg("注册失败, 请稍后再试").WithError(err)
+	}
+
+	return nil
 }
 
 // LoginByEmailOrLoginName implements EmployeeService.

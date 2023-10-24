@@ -7,6 +7,8 @@ import (
 	"github.com/gookit/validate"
 	"github.com/kalougata/go-take-out/internal/model"
 	adminsrv "github.com/kalougata/go-take-out/internal/service/admin"
+	"github.com/kalougata/go-take-out/pkg/errors"
+	"github.com/kalougata/go-take-out/pkg/response"
 )
 
 type authController struct {
@@ -46,36 +48,21 @@ func (ac *authController) Login(c *fiber.Ctx) error {
 func (ac *authController) Register(c *fiber.Ctx) error {
 	var data = new(model.EmployeeRegisterRequest)
 	if err := c.BodyParser(data); err != nil {
-		c.SendStatus(http.StatusUnprocessableEntity)
-		return c.JSON(fiber.Map{
-			"success": false,
-			"errs":    err.Error(),
-		})
+		return response.Build(c, errors.ErrInvalidRequestParams(), err.Error())
 	}
 
 	v := validate.Struct(data)
 
 	if !v.Validate() {
-		c.SendStatus(http.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"success": false,
-			"errs":    v.Errors,
-		})
+		return response.Build(c, errors.ErrInvalidRequestParams().WithError(v.Errors), v.Errors)
 	}
 
 	data.RegIp = c.IP()
 	if err := ac.service.Register(c.Context(), data); err != nil {
-		c.SendStatus(http.StatusInternalServerError)
-		return c.JSON(fiber.Map{
-			"success": false,
-			"errs":    err.Error(),
-		})
+		return response.Build(c, err, nil)
 	}
 
-	return c.JSON(fiber.Map{
-		"success": true,
-		"errs":    nil,
-	})
+	return response.Build(c, nil, nil)
 }
 
 func NewAuthController(service adminsrv.EmployeeService) AuthController {
