@@ -6,11 +6,11 @@ import (
 )
 
 type AdminAPIRouter struct {
-	authCtrl *adminctrl.AuthController
+	authCtrl adminctrl.AuthController
 }
 
 func NewAdminAPIRouter(
-	authCtrl *adminctrl.AuthController,
+	authCtrl adminctrl.AuthController,
 ) *AdminAPIRouter {
 	return &AdminAPIRouter{authCtrl}
 }
