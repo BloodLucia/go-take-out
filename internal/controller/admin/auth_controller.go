@@ -5,9 +5,11 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gookit/validate"
+	"github.com/kalougata/go-take-out/internal/data"
 )
 
 type authController struct {
+	data *data.Data
 }
 
 type AuthController interface {
@@ -44,6 +46,6 @@ func (ac *authController) Register(c *fiber.Ctx) error {
 	return c.SendString("register")
 }
 
-func NewAuthController() AuthController {
-	return &authController{}
+func NewAuthController(data *data.Data) AuthController {
+	return &authController{data}
 }
