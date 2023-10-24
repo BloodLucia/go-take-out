@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
+	"github.com/kalougata/go-take-out/internal/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -50,6 +51,11 @@ func NewData() (*Data, func(), error) {
 	sqlDB.SetConnMaxLifetime(time.Second * 30)
 
 	log.Info("Succeed to connect database \n")
+
+	if err := db.AutoMigrate(&model.Employee{}); err != nil {
+		log.Errorf("failed to migrate database: %s", err)
+		return nil, nil, err
+	}
 
 	return &Data{
 			DB: db,
