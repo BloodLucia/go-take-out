@@ -12,6 +12,7 @@ import (
 	"github.com/kalougata/go-take-out/internal/controller/admin"
 	"github.com/kalougata/go-take-out/internal/data"
 	"github.com/kalougata/go-take-out/internal/server"
+	"github.com/kalougata/go-take-out/internal/service/admin"
 )
 
 // Injectors from wire.go:
@@ -21,7 +22,8 @@ func NewApp() (*fiber.App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	authController := adminctrl.NewAuthController(dataData)
+	employeeService := adminsrv.NewEmployeeService(dataData)
+	authController := adminctrl.NewAuthController(employeeService)
 	adminAPIRouter := adminv1.NewAdminAPIRouter(authController)
 	app := server.NewHTTPServer(adminAPIRouter)
 	return app, func() {

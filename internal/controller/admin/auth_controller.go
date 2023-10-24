@@ -5,13 +5,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gookit/validate"
-	"github.com/kalougata/go-take-out/internal/data"
 	"github.com/kalougata/go-take-out/internal/model"
-	"github.com/kalougata/go-take-out/pkg/utils"
+	adminsrv "github.com/kalougata/go-take-out/internal/service/admin"
 )
 
 type authController struct {
-	data *data.Data
+	service adminsrv.EmployeeService
 }
 
 type AuthController interface {
@@ -54,13 +53,17 @@ func (ac *authController) Register(c *fiber.Ctx) error {
 		})
 	}
 
-	employee := &model.Employee{
-		LoginName: data.LoginName,
-		Email:     data.Email,
-		Passwd:    utils.BcryptHash(data.Passwd),
+	v := validate.Struct(data)
+
+	if !v.Validate() {
+		c.SendStatus(http.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"success": false,
+			"errs":    v.Errors,
+		})
 	}
 
-	if err := ac.data.DB.WithContext(c.Context()).Create(employee).Error; err != nil {
+	if err := ac.service.Register(c.Context(), data); err != nil {
 		c.SendStatus(http.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"success": false,
@@ -71,10 +74,9 @@ func (ac *authController) Register(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"success": true,
 		"errs":    nil,
-		"data":    data,
 	})
 }
 
-func NewAuthController(data *data.Data) AuthController {
-	return &authController{data}
+func NewAuthController(service adminsrv.EmployeeService) AuthController {
+	return &authController{service}
 }
