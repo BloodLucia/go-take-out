@@ -8,8 +8,8 @@ import (
 
 	"github.com/kalougata/go-take-out/internal/model"
 	myErr "github.com/kalougata/go-take-out/pkg/errors"
+	"github.com/kalougata/go-take-out/pkg/hash"
 	"github.com/kalougata/go-take-out/pkg/jwt"
-	"github.com/kalougata/go-take-out/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -34,7 +34,7 @@ func (es *employeeService) Register(ctx context.Context, req *model.EmployeeRegi
 		return myErr.ErrBadRequest().WithMsg("登录名已被注册, 请重新输入")
 	}
 	employee.LoginName = req.LoginName
-	employee.Passwd = utils.BcryptHash(req.Passwd)
+	employee.Passwd = hash.Make(req.Passwd)
 	employee.RegTime = time.Now()
 	employee.RegIp = req.RegIp
 	if err := es.DB.WithContext(ctx).Create(employee).Error; err != nil {
@@ -44,7 +44,7 @@ func (es *employeeService) Register(ctx context.Context, req *model.EmployeeRegi
 	return nil
 }
 
-// LoginByEmailOrLoginName implements EmployeeService.
+// Login implements EmployeeService.
 func (es *employeeService) Login(ctx context.Context, req *model.EmployeeLoginRequest) (resp *model.EmployeeLoginResponse, err error) {
 	employee, exists, err := es.FindByLoginName(ctx, req.LoginName)
 	if err != nil {
@@ -53,11 +53,11 @@ func (es *employeeService) Login(ctx context.Context, req *model.EmployeeLoginRe
 	if !exists {
 		return nil, myErr.ErrNotFound().WithMsg("登录名不存在, 可能未注册")
 	}
-	if employee.Status == 1 {
-		return nil, myErr.ErrBadRequest().WithMsg("账号已被禁用, 请联系管理员")
-	}
-	if !utils.BcryptCheck(req.Passwd, employee.Passwd) {
+	if !hash.Check(req.Passwd, employee.Passwd) {
 		return nil, myErr.ErrBadRequest().WithMsg("密码错误, 请重新输入")
+	}
+	if employee.Status == 0 {
+		return nil, myErr.ErrBadRequest().WithMsg("账号已被禁用, 请联系管理员")
 	}
 
 	employee.LastLoginTime = time.Now()
@@ -71,7 +71,11 @@ func (es *employeeService) Login(ctx context.Context, req *model.EmployeeLoginRe
 	if err != nil {
 		return nil, myErr.ErrInternalServer().WithMsg("生成token失败")
 	}
-	resp = &model.EmployeeLoginResponse{Token: token}
+	resp = &model.EmployeeLoginResponse{
+		UserId:    employee.StringID(),
+		LoginName: employee.LoginName,
+		Token:     token,
+	}
 
 	return resp, nil
 }
