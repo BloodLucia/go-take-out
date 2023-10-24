@@ -2,14 +2,16 @@ package adminsrv
 
 import (
 	"context"
+	"errors"
+	"time"
 
-	"github.com/kalougata/go-take-out/internal/data"
 	"github.com/kalougata/go-take-out/internal/model"
 	"github.com/kalougata/go-take-out/pkg/utils"
+	"gorm.io/gorm"
 )
 
 type employeeService struct {
-	data *data.Data
+	*Service
 }
 
 type EmployeeService interface {
@@ -20,19 +22,25 @@ type EmployeeService interface {
 // Register implements EmployeeService.
 func (es *employeeService) Register(ctx context.Context, req *model.EmployeeRegisterRequest) error {
 	employee := &model.Employee{}
-
+	if err := es.DB.WithContext(ctx).
+		Model(employee).
+		Where("login_name = ?", req.LoginName).
+		First(employee).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("登录名已被注册, 请重新输入")
+	}
 	employee.LoginName = req.LoginName
-	employee.Email = req.Email
 	employee.Passwd = utils.BcryptHash(req.Passwd)
+	employee.RegTime = time.Now()
+	employee.RegIp = req.RegIp
 
-	return es.data.DB.WithContext(ctx).Create(employee).Error
+	return es.DB.WithContext(ctx).Create(employee).Error
 }
 
 // LoginByEmailOrLoginName implements EmployeeService.
-func (*employeeService) LoginByEmailOrLoginName(ctx context.Context) error {
+func (es *employeeService) LoginByEmailOrLoginName(ctx context.Context) error {
 	return nil
 }
 
-func NewEmployeeService(data *data.Data) EmployeeService {
-	return &employeeService{data}
+func NewEmployeeService(service *Service) EmployeeService {
+	return &employeeService{Service: service}
 }

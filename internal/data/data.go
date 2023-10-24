@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/kalougata/go-take-out/internal/model"
+	"github.com/kalougata/go-take-out/pkg/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -16,14 +17,14 @@ type Data struct {
 	DB *gorm.DB
 }
 
-func NewData() (*Data, func(), error) {
+func NewData(conf *config.Config) (*Data, func(), error) {
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&collation=utf8mb4_unicode_ci",
-		"root",
-		"123456",
-		"127.0.0.1",
-		3306,
-		"go_take_out",
+		conf.DB.User,
+		conf.DB.Passwd,
+		conf.DB.Host,
+		conf.DB.Port,
+		conf.DB.DbName,
 	)
 
 	db, err := gorm.Open(mysql.New(mysql.Config{

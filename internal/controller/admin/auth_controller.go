@@ -63,6 +63,7 @@ func (ac *authController) Register(c *fiber.Ctx) error {
 		})
 	}
 
+	data.RegIp = c.IP()
 	if err := ac.service.Register(c.Context(), data); err != nil {
 		c.SendStatus(http.StatusInternalServerError)
 		return c.JSON(fiber.Map{
