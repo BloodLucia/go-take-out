@@ -5,6 +5,7 @@ go 1.21.2
 require (
 	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/google/wire v0.5.0
+	github.com/gookit/validate v1.5.1
 )
 
 require (
@@ -12,7 +13,6 @@ require (
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/gookit/filter v1.2.0 // indirect
 	github.com/gookit/goutil v0.6.12 // indirect
-	github.com/gookit/validate v1.5.1 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect

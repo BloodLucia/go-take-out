@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gookit/validate"
 )
 
 type authController struct {
@@ -15,8 +16,8 @@ type AuthController interface {
 }
 
 type AdminLoginRequest struct {
-	LoginName string `json:"login_name"`
-	Passwd    string `json:"passwd"`
+	LoginName string `json:"login_name" validate:"required" message:"required:login_name 必填"`
+	Passwd    string `json:"passwd" validate:"required" message:"required:passwd 必填"`
 }
 
 func (ac *authController) Login(c *fiber.Ctx) error {
@@ -25,6 +26,14 @@ func (ac *authController) Login(c *fiber.Ctx) error {
 		c.SendStatus(http.StatusUnprocessableEntity)
 		return c.JSON(fiber.Map{
 			"errs": err.Error(),
+		})
+	}
+
+	v := validate.Struct(req)
+	if !v.Validate() {
+		c.SendStatus(http.StatusUnprocessableEntity)
+		return c.JSON(fiber.Map{
+			"errs": v.Errors,
 		})
 	}
 
