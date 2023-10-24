@@ -1,13 +1,21 @@
 package server
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	adminv1 "github.com/kalougata/go-take-out/api/admin"
+)
 
-func NewHTTPServer() *fiber.App {
+func NewHTTPServer(
+	aar *adminv1.AdminAPIRouter,
+) *fiber.App {
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
+	// adminGroup 后台路由组
+	adminGroup := app.Group("/api/v1/admin")
+
+	// 不需要登录的路由
+	noAuthGroup := adminGroup.Group("")
+	aar.SetupGuestAPIRouter(noAuthGroup)
 
 	return app
 }
