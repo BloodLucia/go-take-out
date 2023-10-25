@@ -14,10 +14,16 @@ func NewHTTPServer(
 
 	// adminGroup 后台路由组
 	adminGroup := app.Group("/api/v1/admin")
+	{
+		// 不需要登录的路由
+		noAuthGroup := adminGroup.Group("")
+		aar.SetupGuestAPIRouter(noAuthGroup)
 
-	// 不需要登录的路由
-	noAuthGroup := adminGroup.Group("")
-	aar.SetupGuestAPIRouter(noAuthGroup)
+		// 需要登录的路由
+		needAuthGroup := adminGroup.Group("")
+		needAuthGroup.Use(jm.JWTAdmin())
+		aar.SetupCategoryAPIRouter(needAuthGroup)
+	}
 
 	return app
 }
