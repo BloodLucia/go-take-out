@@ -8,4 +8,5 @@ func (api *AdminAPIRouter) SetupCategoryAPIRouter(r fiber.Router) {
 			"data": nil,
 		})
 	})
+	r.Post("add", api.categoryCtrl.AddCategory)
 }

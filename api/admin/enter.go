@@ -6,16 +6,19 @@ import (
 )
 
 type AdminAPIRouter struct {
-	authCtrl adminctrl.AuthController
+	authCtrl     adminctrl.AuthController
+	categoryCtrl adminctrl.CategoryController
 }
 
 func NewAdminAPIRouter(
 	authCtrl adminctrl.AuthController,
+	categoryCtrl adminctrl.CategoryController,
 ) *AdminAPIRouter {
-	return &AdminAPIRouter{authCtrl}
+	return &AdminAPIRouter{authCtrl, categoryCtrl}
 }
 
 var AdminAPIRouterProvider = wire.NewSet(
 	adminctrl.NewAuthController,
+	adminctrl.NewCategoryController,
 	NewAdminAPIRouter,
 )

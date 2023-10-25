@@ -30,7 +30,8 @@ func NewApp() (*fiber.App, func(), error) {
 	jwtJWT := jwt.NewJWT()
 	employeeService := adminsrv.NewEmployeeService(service, jwtJWT)
 	authController := adminctrl.NewAuthController(employeeService)
-	adminAPIRouter := adminv1.NewAdminAPIRouter(authController)
+	categoryController := adminctrl.NewCategoryController()
+	adminAPIRouter := adminv1.NewAdminAPIRouter(authController, categoryController)
 	jwtMiddleware := middleware.NewJWTMiddleware(jwtJWT)
 	app := server.NewHTTPServer(adminAPIRouter, jwtMiddleware)
 	return app, func() {
