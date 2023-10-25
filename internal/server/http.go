@@ -21,7 +21,7 @@ func NewHTTPServer(
 
 		// 需要登录的路由
 		needAuthGroup := adminGroup.Group("")
-		needAuthGroup.Use(jm.JWTAdmin())
+		// needAuthGroup.Use(jm.JWTAdmin())
 		aar.SetupCategoryAPIRouter(needAuthGroup)
 	}
 

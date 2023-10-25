@@ -14,7 +14,7 @@ type CategoryController interface {
 
 // AddCategory 添加一个分类
 func (cc *categoryController) AddCategory(c *fiber.Ctx) error {
-	return response.Build(c, nil, "添加分类")
+	return response.Build(c, nil, "创建分类")
 }
 
 func NewCategoryController() CategoryController {
