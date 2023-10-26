@@ -21,12 +21,10 @@ type AuthController interface {
 func (ac *authController) Login(c *fiber.Ctx) error {
 	var data = new(model.EmployeeLoginRequest)
 	if err := c.BodyParser(data); err != nil {
-		return response.Build(c, errors.ErrInvalidRequestParams().WithMsg(err.Error()), nil)
+		return response.Build(c, errors.ErrBadRequest().WithMsg(err.Error()), nil)
 	}
 
-	v := validate.Struct(data)
-
-	if !v.Validate() {
+	if v := validate.Struct(data); !v.Validate() {
 		return response.Build(c, errors.ErrInvalidRequestParams(), v.Errors)
 	}
 
